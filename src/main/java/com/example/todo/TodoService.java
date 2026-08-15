@@ -51,7 +51,10 @@ public class TodoService {
         if (result.isEmpty()) {
             return false;
         }
-        repo.delete(result.get());
+
+        Todo foundTodo = result.get();
+        foundTodo.setArchived(true);
+        repo.save(foundTodo);
         return true;
 
     }

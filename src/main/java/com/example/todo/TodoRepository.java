@@ -11,6 +11,6 @@ import com.example.todo.entities.Todo;
 public interface TodoRepository extends JpaRepository<Todo, Integer> { // always takes two types <Entity, Id>
 
     @EntityGraph(attributePaths = "category")
-    @Query("SELECT t FROM Todo t")
+    @Query("SELECT t FROM Todo t WHERE t.isArchived = false")
     List<Todo> findAllWithCategory();
 }
