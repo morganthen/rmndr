@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.todo.common.exceptions.NotFoundException;
 import com.example.todo.dtos.CreateTodoRequest;
 import com.example.todo.dtos.TodoResponse;
+import com.example.todo.dtos.UpdateTodoRequest;
 import com.example.todo.entities.Todo;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -50,6 +52,14 @@ public class TodoController {
             throw new NotFoundException("No todo with id " + id);
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<TodoResponse> updateTodoById(@PathVariable Integer id,
+            @Valid @RequestBody UpdateTodoRequest data) {
+        Todo result = this.todoService.updateById(id, data)
+                .orElseThrow(() -> new NotFoundException("Could not find todo with id " + id));
+        return ResponseEntity.ok(TodoResponse.of(result));
     }
 
 }

@@ -10,6 +10,7 @@ import com.example.todo.category.CategoryService;
 import com.example.todo.category.entities.Category;
 import com.example.todo.common.exceptions.NotFoundException;
 import com.example.todo.dtos.CreateTodoRequest;
+import com.example.todo.dtos.UpdateTodoRequest;
 import com.example.todo.entities.Todo;
 
 @Service
@@ -55,4 +56,36 @@ public class TodoService {
 
     }
 
+    public Optional<Todo> findById(Integer id) {
+        return this.repo.findById(id);
+    }
+
+    public Optional<Todo> updateById(Integer id, UpdateTodoRequest data) {
+        Optional<Todo> result = this.findById(id);
+        if (result.isEmpty()) {
+            return result;
+        }
+
+        Todo foundTodo = result.get();
+
+        this.mapper.map(data, foundTodo);
+
+        if (data.getIsDone() != null) {
+            foundTodo.setDone(data.getIsDone());
+        }
+
+        if (data.getIsArchived() != null) {
+            foundTodo.setArchived(data.getIsArchived());
+        }
+
+        if (data.getCategoryId() != null) {
+            Category resolved = categoryService.findById(data.getCategoryId())
+                    .orElseThrow(() -> new NotFoundException("No category with id " + data.getCategoryId()));
+            foundTodo.setCategory(resolved);
+        }
+
+        this.repo.saveAndFlush(foundTodo);
+        return Optional.of(foundTodo);
+
+    }
 }
