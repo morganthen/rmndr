@@ -20,7 +20,7 @@ public class CategoryService {
     }
 
     public Optional<Category> getDefaultCategory() {
-        return categoryRepository.findById(1);
+        return categoryRepository.findByName("Uncategorized");
     }
 
 }
