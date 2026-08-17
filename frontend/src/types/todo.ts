@@ -5,3 +5,8 @@ export interface Todo {
   isArchived: boolean;
   category: string | null;
 }
+
+export interface CreateTodoRequest {
+  title: string;
+  categoryId: number | null;
+}
