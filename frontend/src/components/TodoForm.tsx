@@ -69,20 +69,22 @@ function TodoForm({ createTodo }: TodoFormProps) {
   }, []);
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className="border-slate-300 border-2 w-full my-4 rounded-lg">
+      <form onSubmit={handleSubmit} className="flex gap-2 p-3">
         <input
-          placeholder="new task"
+          placeholder="Create a new task..."
           onChange={(e) => setTodo(e.target.value)}
           value={todo}
+          className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         ></input>
-        {error && <p>{error}</p>}
+        {error && <p className="w-full text-sm text-red-600">{error}</p>}
         {selectedCategory !== "__new__" && (
           <select
             name="category"
             id="category"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
@@ -92,7 +94,11 @@ function TodoForm({ createTodo }: TodoFormProps) {
             <option value="__new__">+ New Category</option>
           </select>
         )}
-        <button type="submit" disabled={selectedCategory === "__new__"}>
+        <button
+          type="submit"
+          disabled={selectedCategory === "__new__"}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
           Add task
         </button>
       </form>

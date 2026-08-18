@@ -1,4 +1,5 @@
 import type { Todo } from "../types/todo";
+import TodoItem from "./TodoItem";
 
 interface TodoListProps {
   todos: Todo[];
@@ -9,18 +10,14 @@ interface TodoListProps {
 function TodoList({ todos, onToggleDone, onDelete }: TodoListProps) {
   return (
     <div>
-      <ul>
+      <ul className="space-y-2">
         {todos.map((todo) => (
-          <li key={todo.id}>
-            <h3 className={todo.isDone ? "line-through" : ""}>{todo.title}</h3>
-            <input
-              type="checkbox"
-              checked={todo.isDone}
-              onChange={() => onToggleDone(todo.id, !todo.isDone)}
-            ></input>
-            <p>{todo.category}</p>
-            <button onClick={() => onDelete(todo.id)}>Delete</button>
-          </li>
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            onToggleDone={onToggleDone}
+            onDelete={onDelete}
+          />
         ))}
       </ul>
     </div>
