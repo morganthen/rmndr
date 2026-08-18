@@ -63,6 +63,10 @@ public class TodoService {
         return this.repo.findById(id);
     }
 
+    public List<Todo> findByCategoryId(Integer id) {
+        return this.repo.findByCategoryId(id);
+    }
+
     public Optional<Todo> updateById(Integer id, UpdateTodoRequest data) {
         Optional<Todo> result = this.findById(id);
         if (result.isEmpty()) {
