@@ -19,3 +19,10 @@ export const createCategory = async (
   if (!res.ok) throw new Error("Failed to create category");
   return res.json();
 };
+
+export const deleteCategory = async (id: number): Promise<void> => {
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete category");
+};
