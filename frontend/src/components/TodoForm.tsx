@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import type { Category } from "../types/category";
-import { getAllCategories } from "../services/category-services";
+import type { Category, CreateCategoryRequest } from "../types/category";
+import {
+  createCategory,
+  getAllCategories,
+} from "../services/category-services";
 import type { CreateTodoRequest } from "../types/todo";
+import CategoryForm from "./CategoryForm";
 
 interface TodoFormProps {
   createTodo: (data: CreateTodoRequest) => void;
@@ -29,6 +33,25 @@ function TodoForm({ createTodo }: TodoFormProps) {
     setTodo("");
   };
 
+  const handleCreateCategory = async (data: CreateCategoryRequest) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const { id, name } = await createCategory(data);
+
+      setCategories((prev) => [...prev, { id, name }]);
+      setSelectedCategory(String(id));
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong when creating category",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleGetCategories = async () => {
       try {
@@ -54,20 +77,31 @@ function TodoForm({ createTodo }: TodoFormProps) {
           value={todo}
         ></input>
         {error && <p>{error}</p>}
-        <select
-          name="category"
-          id="category"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <button type="submit">Add task</button>
+        {selectedCategory !== "__new__" && (
+          <select
+            name="category"
+            id="category"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+            <option value="__new__">+ New Category</option>
+          </select>
+        )}
+        <button type="submit" disabled={selectedCategory === "__new__"}>
+          Add task
+        </button>
       </form>
+      {selectedCategory === "__new__" && (
+        <CategoryForm
+          setSelectedCategory={setSelectedCategory}
+          handleCreateCategory={handleCreateCategory}
+        />
+      )}
     </div>
   );
 }
