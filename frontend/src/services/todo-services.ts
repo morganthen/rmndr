@@ -4,7 +4,13 @@ const BASE_URL = "http://localhost:8080/todos";
 
 export const fetchTodos = async (): Promise<Todo[]> => {
   const res = await fetch(BASE_URL);
-  if (!res.ok) throw new Error("Response not okay");
+  if (!res.ok) throw new Error("Failed fetching todos");
+  return res.json();
+};
+
+export const fetchArchivedTodos = async (): Promise<Todo[]> => {
+  const res = await fetch(`${BASE_URL}/archived`);
+  if (!res.ok) throw new Error("Failed fetching archived todos");
   return res.json();
 };
 
@@ -37,4 +43,13 @@ export const deleteTodo = async (id: number): Promise<void> => {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Deleting todo failed");
+};
+
+export const archiveTodo = async (id: number): Promise<void> => {
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isArchived: true }),
+  });
+  if (!res.ok) throw new Error("Archiving todo failed");
 };

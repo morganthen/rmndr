@@ -45,6 +45,12 @@ public class TodoController {
         return ResponseEntity.ok(TodoResponse.of(todos));
     }
 
+    @GetMapping("/archived")
+    public ResponseEntity<List<TodoResponse>> getArchivedTodos() {
+        List<Todo> todos = this.todoService.getArchivedTodos();
+        return ResponseEntity.ok(TodoResponse.of(todos));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         boolean deleted = todoService.deleteById(id);

@@ -4,19 +4,33 @@ import TodoItem from "./TodoItem";
 interface TodoListProps {
   todos: Todo[];
   onToggleDone: (id: number, isDone: boolean) => void;
-  onDelete: (id: number) => void;
+  onArchive: (id: number) => void;
+  archivedTodos: Todo[];
+  onDeleteTodo: (id: number) => void;
+  toggleArchived: boolean;
 }
 
-function TodoList({ todos, onToggleDone, onDelete }: TodoListProps) {
+function TodoList({
+  todos,
+  onToggleDone,
+  onArchive,
+  archivedTodos,
+  onDeleteTodo,
+  toggleArchived,
+}: TodoListProps) {
+  const todosBasedOnArchive = toggleArchived ? archivedTodos : todos;
+
   return (
     <div>
       <ul className="space-y-2">
-        {todos.map((todo) => (
+        {todosBasedOnArchive.map((todo) => (
           <TodoItem
             key={todo.id}
             todo={todo}
             onToggleDone={onToggleDone}
-            onDelete={onDelete}
+            onArchive={onArchive}
+            toggleArchived={toggleArchived}
+            onDeleteTodo={onDeleteTodo}
           />
         ))}
       </ul>

@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import type { Category } from "../../types/category";
 
-interface CategoryPanel {
+interface CategoryPanelProps {
   children: ReactNode;
   categories: Category[];
   onDeleteCategory: (id: number) => void;
-  onSelectFilter: (name: string) => void;
+  onSelectFilter: (name: string | null) => void;
+  onToggleArchived: () => void;
 }
 
 function CategoryPanel({
@@ -13,9 +14,11 @@ function CategoryPanel({
   categories,
   onDeleteCategory,
   onSelectFilter,
-}: CategoryPanel) {
+  onToggleArchived,
+}: CategoryPanelProps) {
   return (
     <div>
+      <button onClick={() => onSelectFilter(null)}>All</button>
       {categories.map((c) => (
         <span key={c.id}>
           <button onClick={() => onSelectFilter(c.name)}>{c.name}</button>
@@ -30,6 +33,8 @@ function CategoryPanel({
           )}
         </span>
       ))}
+
+      <button onClick={onToggleArchived}>Archived</button>
       {children}
     </div>
   );

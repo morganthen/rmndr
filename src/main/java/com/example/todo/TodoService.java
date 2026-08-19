@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.todo.category.CategoryService;
 import com.example.todo.category.entities.Category;
+import com.example.todo.common.exceptions.ConflictException;
 import com.example.todo.common.exceptions.NotFoundException;
 import com.example.todo.dtos.CreateTodoRequest;
 import com.example.todo.dtos.UpdateTodoRequest;
@@ -46,6 +47,12 @@ public class TodoService {
         return repo.findAllWithCategory();
     }
 
+    public List<Todo> getArchivedTodos() {
+        return repo.findAllArchivedWithCategory();
+    }
+
+    // this is back to a hard delete, and we are soft deleting through the patch on
+    // updateById below
     public boolean deleteById(int id) {
         Optional<Todo> result = repo.findById(id);
         if (result.isEmpty()) {
@@ -53,8 +60,10 @@ public class TodoService {
         }
 
         Todo foundTodo = result.get();
-        foundTodo.setArchived(true);
-        repo.save(foundTodo);
+        if (!foundTodo.isArchived()) {
+            throw new ConflictException("Todo not archived yet");
+        }
+        repo.deleteById(id);
         return true;
 
     }

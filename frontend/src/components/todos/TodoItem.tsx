@@ -3,10 +3,18 @@ import type { Todo } from "../../types/todo";
 interface TodoItemProps {
   todo: Todo;
   onToggleDone: (id: number, isDone: boolean) => void;
-  onDelete: (id: number) => void;
+  onArchive: (id: number) => void;
+  onDeleteTodo: (id: number) => void;
+  toggleArchived: boolean;
 }
 
-function TodoItem({ todo, onToggleDone, onDelete }: TodoItemProps) {
+function TodoItem({
+  todo,
+  onToggleDone,
+  onArchive,
+  onDeleteTodo,
+  toggleArchived,
+}: TodoItemProps) {
   return (
     <li
       key={todo.id}
@@ -31,10 +39,12 @@ function TodoItem({ todo, onToggleDone, onDelete }: TodoItemProps) {
         </p>
       )}
       <button
-        onClick={() => onDelete(todo.id)}
+        onClick={() =>
+          toggleArchived ? onDeleteTodo(todo.id) : onArchive(todo.id)
+        }
         className="rounded-md px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
       >
-        Delete
+        {toggleArchived ? "Delete" : "Archive"}
       </button>
     </li>
   );
