@@ -38,7 +38,7 @@ function CategoryForm({ handleCreateCategory }: CategoryFormProps) {
 
         <button
           type="submit"
-          className="rounded-lg bg-sage px-4 py-2 text-sm font-medium text-bone transition hover:bg-ink h-10"
+          className="h-10 shrink-0 whitespace-nowrap rounded-lg bg-sage px-4 py-2 text-sm font-medium text-bone transition hover:bg-ink"
         >
           Create Category
         </button>
