@@ -151,8 +151,8 @@ function App() {
   };
 
   const handleSetSelectedFilter = (name: string | null) => {
-    setToggleArchived(false);
     setError(null);
+    setToggleArchived(false);
     setSelectedFilter(name);
   };
 
@@ -177,6 +177,7 @@ function App() {
   };
 
   const handleToggleArchived = () => {
+    setError(null);
     setToggleArchived((prev) => !prev);
   };
 
@@ -206,6 +207,8 @@ function App() {
       <h1 className="text-4xl font-bold text-blue-600">RMNDR</h1>
       <CategoryPanel
         categories={categories}
+        selectedFilter={selectedFilter}
+        toggleArchived={toggleArchived}
         onDeleteCategory={handleDeleteCategory}
         onSelectFilter={handleSetSelectedFilter}
         onToggleArchived={handleToggleArchived}
