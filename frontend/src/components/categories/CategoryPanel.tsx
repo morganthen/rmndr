@@ -11,8 +11,9 @@ interface CategoryPanelProps {
   onToggleArchived: () => void;
 }
 
-const buttonBase = "rounded-md px-2 py-1 text-sm transition hover:bg-gray-100";
-const activeClass = "bg-blue-100 font-medium text-blue-700";
+const buttonBase = "rounded-md px-2 py-1 text-sm transition";
+const activeClass = "bg-sage font-medium text-bone";
+const inactiveClass = "text-clay hover:bg-bone";
 
 function CategoryPanel({
   children,
@@ -26,7 +27,7 @@ function CategoryPanel({
   return (
     <div className="flex w-full flex-wrap items-center gap-2">
       <button
-        className={`${buttonBase} ${selectedFilter === null ? activeClass : "text-gray-700"}`}
+        className={`${buttonBase} ${selectedFilter === null ? activeClass : inactiveClass}`}
         onClick={() => onSelectFilter(null)}
       >
         All
@@ -34,7 +35,7 @@ function CategoryPanel({
       {categories.map((c) => (
         <span key={c.id} className="group flex items-center">
           <button
-            className={`${buttonBase} ${selectedFilter === c.name ? activeClass : "text-gray-700"}`}
+            className={`${buttonBase} ${selectedFilter === c.name ? activeClass : inactiveClass}`}
             onClick={() => onSelectFilter(c.name)}
           >
             {c.name}
@@ -42,7 +43,7 @@ function CategoryPanel({
           {c.name !== "Uncategorized" && (
             <button
               aria-label={`Delete category ${c.name}`}
-              className="rounded px-1 text-gray-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+              className="rounded px-1 text-clay opacity-0 transition hover:bg-bone hover:text-red-700 group-hover:opacity-100"
               onClick={() => {
                 onDeleteCategory(c.id);
               }}
@@ -54,7 +55,7 @@ function CategoryPanel({
       ))}
 
       <button
-        className={`${buttonBase} ${toggleArchived ? activeClass : "text-gray-700"}`}
+        className={`${buttonBase} ${toggleArchived ? activeClass : inactiveClass}`}
         onClick={onToggleArchived}
       >
         Archived

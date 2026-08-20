@@ -203,8 +203,8 @@ function App() {
       : todos.filter((t) => t.category === selectedFilter);
 
   return (
-    <div className="mx-auto my-2 flex h-dvh w-full max-w-md flex-col items-center justify-center border-2 border-solid px-2 sm:max-w-xl md:max-w-2xl md:px-4 lg:max-w-3xl">
-      <h1 className="text-3xl font-bold text-blue-600 sm:text-4xl">RMNDR</h1>
+    <div className="mx-auto my-2 flex h-dvh w-full max-w-md flex-col items-center justify-center rounded-2xl border border-clay/50 bg-tan/30 px-2 shadow-sm sm:max-w-xl md:max-w-2xl md:px-4 lg:max-w-3xl">
+      <h1 className="text-3xl font-bold tracking-wide text-ink sm:text-4xl">RMNDR</h1>
       <CategoryPanel
         categories={categories}
         selectedFilter={selectedFilter}
@@ -216,9 +216,11 @@ function App() {
         <CategoryForm handleCreateCategory={handleCreateCategory} />
       </CategoryPanel>
       <TodoForm createTodo={handleCreateTodo} categories={categories} />
-      {isLoading && <p>Loading...</p>}
-      {error && <p>{error}</p>}
-      {todos.length === 0 && !isLoading && <p>No Todos to show yet</p>}
+      {isLoading && <p className="text-clay">Loading...</p>}
+      {error && <p className="text-red-700">{error}</p>}
+      {todos.length === 0 && !isLoading && (
+        <p className="text-clay">No Todos to show yet</p>
+      )}
       {!isLoading &&
         (toggleArchived ? archivedTodos.length !== 0 : todos.length !== 0) && (
           <TodoList

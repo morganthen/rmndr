@@ -28,21 +28,20 @@ function TodoForm({ createTodo, categories }: TodoFormProps) {
   };
 
   return (
-    <div className="border-slate-300 border-2 w-full my-4 rounded-lg">
+    <div className="my-4 w-full rounded-lg border border-clay/50 bg-bone/60">
       <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 p-3">
         <input
           placeholder="Create a new task..."
           onChange={(e) => setTodo(e.target.value)}
           value={todo}
-          className="min-w-[200px] flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-[200px] flex-1 rounded-lg border border-clay/60 bg-bone px-3 py-2 text-sm placeholder:text-clay focus:outline-none focus:ring-2 focus:ring-sage/60"
         ></input>
-        {error && <p className="w-full text-sm text-red-600">{error}</p>}
         <select
           name="category"
           id="category"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-clay/60 bg-bone px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sage/60"
         >
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
@@ -52,10 +51,11 @@ function TodoForm({ createTodo, categories }: TodoFormProps) {
         </select>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-sage px-4 py-2 text-sm font-medium text-bone transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
         >
           Add task
         </button>
+        <p className="h-5 w-full text-sm text-red-700">{error}</p>
       </form>
     </div>
   );
