@@ -24,7 +24,7 @@ function CategoryPanel({
   onToggleArchived,
 }: CategoryPanelProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex w-full flex-wrap items-center gap-2">
       <button
         className={`${buttonBase} ${selectedFilter === null ? activeClass : "text-gray-700"}`}
         onClick={() => onSelectFilter(null)}

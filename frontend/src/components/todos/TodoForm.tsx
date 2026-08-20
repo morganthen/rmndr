@@ -29,12 +29,12 @@ function TodoForm({ createTodo, categories }: TodoFormProps) {
 
   return (
     <div className="border-slate-300 border-2 w-full my-4 rounded-lg">
-      <form onSubmit={handleSubmit} className="flex gap-2 p-3">
+      <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 p-3">
         <input
           placeholder="Create a new task..."
           onChange={(e) => setTodo(e.target.value)}
           value={todo}
-          className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="min-w-[200px] flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         ></input>
         {error && <p className="w-full text-sm text-red-600">{error}</p>}
         <select

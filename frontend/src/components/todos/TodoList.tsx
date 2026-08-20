@@ -21,7 +21,7 @@ function TodoList({
   const todosBasedOnArchive = toggleArchived ? archivedTodos : todos;
 
   return (
-    <div>
+    <div className="w-full">
       <ul className="space-y-2">
         {todosBasedOnArchive.map((todo) => (
           <TodoItem

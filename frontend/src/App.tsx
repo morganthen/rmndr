@@ -203,8 +203,8 @@ function App() {
       : todos.filter((t) => t.category === selectedFilter);
 
   return (
-    <div className="h-dvh flex flex-col items-center justify-center border-2 border-solid mx-2 my-2">
-      <h1 className="text-4xl font-bold text-blue-600">RMNDR</h1>
+    <div className="mx-auto my-2 flex h-dvh w-full max-w-md flex-col items-center justify-center border-2 border-solid px-2 sm:max-w-xl md:max-w-2xl md:px-4 lg:max-w-3xl">
+      <h1 className="text-3xl font-bold text-blue-600 sm:text-4xl">RMNDR</h1>
       <CategoryPanel
         categories={categories}
         selectedFilter={selectedFilter}

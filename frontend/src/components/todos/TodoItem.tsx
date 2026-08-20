@@ -1,4 +1,5 @@
 import type { Todo } from "../../types/todo";
+import { HiOutlineArchive, HiOutlineTrash } from "react-icons/hi";
 
 interface TodoItemProps {
   todo: Todo;
@@ -39,12 +40,18 @@ function TodoItem({
         </p>
       )}
       <button
+        aria-label={toggleArchived ? "Delete todo" : "Archive todo"}
+        title={toggleArchived ? "Delete todo" : "Archive todo"}
         onClick={() =>
           toggleArchived ? onDeleteTodo(todo.id) : onArchive(todo.id)
         }
         className="rounded-md px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
       >
-        {toggleArchived ? "Delete" : "Archive"}
+        {toggleArchived ? (
+          <HiOutlineTrash className="h-4 w-4" />
+        ) : (
+          <HiOutlineArchive className="h-4 w-4" />
+        )}
       </button>
     </li>
   );
