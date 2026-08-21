@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.example.todo.TodoRepository;
 import com.example.todo.category.dtos.CreateCategoryRequest;
+import com.example.todo.category.dtos.UpdateCategoryRequest;
 import com.example.todo.category.entities.Category;
 import com.example.todo.common.exceptions.ConflictException;
+import com.example.todo.common.exceptions.NotFoundException;
 import com.example.todo.entities.Todo;
 
 @Service
@@ -59,6 +61,24 @@ public class CategoryService {
 
         categoryRepository.deleteById(id);
         return true;
+
+    }
+
+    public Optional<Category> updateById(UpdateCategoryRequest data, Integer id) {
+        Optional<Category> result = this.findById(id);
+        if (result.isEmpty()) {
+            return result;
+        }
+
+        Category foundCategory = result.get();
+
+        if (foundCategory.getName().equals("Uncategorized")) {
+            throw new ConflictException("The default category cannot be updated");
+        }
+
+        foundCategory.setName(data.getName());
+        this.categoryRepository.save(foundCategory);
+        return Optional.of(foundCategory);
 
     }
 }

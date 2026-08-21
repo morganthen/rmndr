@@ -16,6 +16,7 @@ import {
   createCategory,
   deleteCategory,
   getAllCategories,
+  updateCategory,
 } from "./services/category-services";
 import CategoryForm from "./components/categories/CategoryForm";
 import Header from "./components/Header";
@@ -30,28 +31,32 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [toggleCreateCategoryModal, setToggleCreateCategoryModal] =
     useState<boolean>(false);
+  const [toggleEditCategory, setToggleEditCategory] = useState<number | null>(
+    null,
+  );
   const dialogRef = useRef<HTMLDialogElement>(null);
 
+  const loadTodos = async () => {
+    try {
+      const result = await fetchTodos();
+      setTodos(result);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong fetching todos",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
-      try {
-        const result = await fetchTodos();
-        setTodos(result);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong fetching todos",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    load();
+    loadTodos();
   }, []);
 
   useEffect(() => {
-    const load = async () => {
+    const loadArchivedTodos = async () => {
       try {
         const result = await fetchArchivedTodos();
         setArchivedTodos(result);
@@ -65,7 +70,7 @@ function App() {
         setIsLoading(false);
       }
     };
-    load();
+    loadArchivedTodos();
   }, [toggleArchived]);
 
   useEffect(() => {
@@ -99,6 +104,10 @@ function App() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleToggleEditCategory = (id: number) => {
+    setToggleEditCategory((prev) => (prev === id ? null : id));
   };
 
   const handleCreateTodo = async (data: CreateTodoRequest) => {
@@ -201,6 +210,33 @@ function App() {
     setToggleArchived((prev) => !prev);
   };
 
+  const handleUpdateCategory = async (
+    id: number,
+    data: CreateCategoryRequest,
+  ) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      await updateCategory(id, data);
+      if (categories.find((c) => c.id === id)?.name === selectedFilter) {
+        setSelectedFilter(data.name);
+      }
+      setCategories((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, name: data.name } : c)),
+      );
+      setToggleEditCategory(null);
+      loadTodos();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong when updating category",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleGetCategories = async () => {
       try {
@@ -237,6 +273,9 @@ function App() {
           onSelectFilter={handleSetSelectedFilter}
           onToggleArchived={handleToggleArchived}
           onOpenModal={handleOpenModal}
+          onUpdateCategory={handleUpdateCategory}
+          onToggleEditCategory={handleToggleEditCategory}
+          editCategory={toggleEditCategory}
         >
           {toggleCreateCategoryModal && (
             <dialog

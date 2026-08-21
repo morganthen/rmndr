@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todo.category.dtos.CategoryResponse;
 import com.example.todo.category.dtos.CreateCategoryRequest;
+import com.example.todo.category.dtos.UpdateCategoryRequest;
 import com.example.todo.category.entities.Category;
 import com.example.todo.common.exceptions.NotFoundException;
 
@@ -12,11 +13,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,6 +54,15 @@ public class CategoryController {
             throw new NotFoundException("No category with id " + id);
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<CategoryResponse> updateById(@PathVariable Integer id,
+            @Valid @RequestBody UpdateCategoryRequest data) {
+        Category updated = categoryService.updateById(data, id)
+                .orElseThrow(() -> new NotFoundException("Could not find category with id " + id));
+        return ResponseEntity.ok(CategoryResponse.of(updated));
+
     }
 
 }
