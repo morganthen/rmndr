@@ -26,17 +26,19 @@ function CategoryForm({ handleCreateCategory }: CategoryFormProps) {
   return (
     <div>
       <form onSubmit={handleSubmit} className="flex gap-2 px-3 pb-3">
-        <input
-          value={newCategory}
-          placeholder="e.g. Personal"
-          onChange={(e) => setNewCategory(e.target.value)}
-          className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        ></input>
-        {error && <p className="w-full text-sm text-red-600">{error}</p>}
+        <div className="flex flex-col">
+          <input
+            value={newCategory}
+            placeholder="e.g. Personal"
+            onChange={(e) => setNewCategory(e.target.value)}
+            className="flex-1 rounded-lg border border-clay/60 bg-bone px-3 py-2 text-sm placeholder:text-clay focus:outline-none focus:ring-2 focus:ring-sage/60"
+          ></input>
+          <p className="h-5 w-full text-sm text-red-700">{error}</p>
+        </div>
 
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          className="h-10 shrink-0 whitespace-nowrap rounded-lg bg-sage px-4 py-2 text-sm font-medium text-bone transition hover:bg-ink"
         >
           Create Category
         </button>

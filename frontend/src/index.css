@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@theme {
+  --color-sage: #646a5e;
+  --color-bone: #e0e0d4;
+  --color-tan: #ccc5b2;
+  --color-clay: #9b9589;
+  --color-ink: #414141;
+}
+
+@layer base {
+  body {
+    @apply bg-bone text-ink;
+  }
+}

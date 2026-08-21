@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CreateTodoRequest, Todo } from "./types/todo";
 import TodoList from "./components/todos/TodoList";
 import TodoForm from "./components/todos/TodoForm";
@@ -16,8 +16,10 @@ import {
   createCategory,
   deleteCategory,
   getAllCategories,
+  updateCategory,
 } from "./services/category-services";
 import CategoryForm from "./components/categories/CategoryForm";
+import Header from "./components/Header";
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -27,27 +29,34 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [toggleCreateCategoryModal, setToggleCreateCategoryModal] =
+    useState<boolean>(false);
+  const [toggleEditCategory, setToggleEditCategory] = useState<number | null>(
+    null,
+  );
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const loadTodos = async () => {
+    try {
+      const result = await fetchTodos();
+      setTodos(result);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong fetching todos",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const result = await fetchTodos();
-        setTodos(result);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong fetching todos",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    load();
+    loadTodos();
   }, []);
 
   useEffect(() => {
-    const load = async () => {
+    const loadArchivedTodos = async () => {
       try {
         const result = await fetchArchivedTodos();
         setArchivedTodos(result);
@@ -61,8 +70,23 @@ function App() {
         setIsLoading(false);
       }
     };
-    load();
+    loadArchivedTodos();
   }, [toggleArchived]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (toggleCreateCategoryModal && !dialog.open) {
+      dialog.showModal();
+    } else if (!toggleCreateCategoryModal && dialog.open) {
+      dialog.close();
+    }
+  }, [toggleCreateCategoryModal]);
+
+  const handleModalCancel = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    setToggleCreateCategoryModal(false);
+  };
 
   const handleToggleDone = async (id: number, isDone: boolean) => {
     try {
@@ -70,6 +94,7 @@ function App() {
       setIsLoading(true);
       const updated = await toggleDone(id, isDone);
       setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      setArchivedTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
     } catch (err) {
       setError(
         err instanceof Error
@@ -79,6 +104,10 @@ function App() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleToggleEditCategory = (id: number) => {
+    setToggleEditCategory((prev) => (prev === id ? null : id));
   };
 
   const handleCreateTodo = async (data: CreateTodoRequest) => {
@@ -137,8 +166,8 @@ function App() {
       setError(null);
       setIsLoading(true);
       const { id, name } = await createCategory(data);
-
       setCategories((prev) => [...prev, { id, name }]);
+      setToggleCreateCategoryModal(false);
     } catch (err) {
       setError(
         err instanceof Error
@@ -181,6 +210,33 @@ function App() {
     setToggleArchived((prev) => !prev);
   };
 
+  const handleUpdateCategory = async (
+    id: number,
+    data: CreateCategoryRequest,
+  ) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      await updateCategory(id, data);
+      if (categories.find((c) => c.id === id)?.name === selectedFilter) {
+        setSelectedFilter(data.name);
+      }
+      setCategories((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, name: data.name } : c)),
+      );
+      setToggleEditCategory(null);
+      loadTodos();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong when updating category",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleGetCategories = async () => {
       try {
@@ -197,28 +253,58 @@ function App() {
     handleGetCategories();
   }, []);
 
+  const handleOpenModal = () => {
+    setToggleCreateCategoryModal((prev) => !prev);
+  };
+
   const visibleTodos =
     selectedFilter === null
       ? todos
       : todos.filter((t) => t.category === selectedFilter);
 
   return (
-    <div className="mx-auto my-2 flex h-dvh w-full max-w-md flex-col items-center justify-center border-2 border-solid px-2 sm:max-w-xl md:max-w-2xl md:px-4 lg:max-w-3xl">
-      <h1 className="text-3xl font-bold text-blue-600 sm:text-4xl">RMNDR</h1>
-      <CategoryPanel
-        categories={categories}
-        selectedFilter={selectedFilter}
-        toggleArchived={toggleArchived}
-        onDeleteCategory={handleDeleteCategory}
-        onSelectFilter={handleSetSelectedFilter}
-        onToggleArchived={handleToggleArchived}
-      >
-        <CategoryForm handleCreateCategory={handleCreateCategory} />
-      </CategoryPanel>
+    <div className="mx-auto my-2 flex h-dvh w-full max-w-md flex-col items-center justify-center rounded-2xl border border-clay/50 bg-tan/30 px-2 shadow-sm sm:max-w-xl md:max-w-2xl md:px-4 lg:max-w-3xl">
+      <Header>
+        <CategoryPanel
+          categories={categories}
+          selectedFilter={selectedFilter}
+          toggleArchived={toggleArchived}
+          onDeleteCategory={handleDeleteCategory}
+          onSelectFilter={handleSetSelectedFilter}
+          onToggleArchived={handleToggleArchived}
+          onOpenModal={handleOpenModal}
+          onUpdateCategory={handleUpdateCategory}
+          onToggleEditCategory={handleToggleEditCategory}
+          editCategory={toggleEditCategory}
+        >
+          {toggleCreateCategoryModal && (
+            <dialog
+              ref={dialogRef}
+              onCancel={handleModalCancel}
+              onClose={() => setToggleCreateCategoryModal(false)}
+              className="relative m-auto flex min-h-64 w-full max-w-sm flex-col justify-center rounded-2xl border border-clay/50 bg-bone p-4 shadow-lg backdrop:bg-ink/50 backdrop:backdrop-blur-sm"
+            >
+              <button
+                aria-label="Close"
+                onClick={() => setToggleCreateCategoryModal(false)}
+                className="absolute right-3 top-3 rounded-full p-1.5 text-clay transition-all  hover:bg-tan hover:text-ink"
+              >
+                x
+              </button>
+              <h2 className="mb-3 pr-6 text-sm font-semibold uppercase tracking-wide text-ink">
+                New category
+              </h2>
+              <CategoryForm handleCreateCategory={handleCreateCategory} />
+            </dialog>
+          )}
+        </CategoryPanel>
+      </Header>
       <TodoForm createTodo={handleCreateTodo} categories={categories} />
-      {isLoading && <p>Loading...</p>}
-      {error && <p>{error}</p>}
-      {todos.length === 0 && !isLoading && <p>No Todos to show yet</p>}
+      {isLoading && <p className="text-clay">Loading...</p>}
+      {error && <p className="text-red-700">{error}</p>}
+      {todos.length === 0 && !isLoading && !toggleArchived && (
+        <p className="text-clay">No Todos to show yet</p>
+      )}
       {!isLoading &&
         (toggleArchived ? archivedTodos.length !== 0 : todos.length !== 0) && (
           <TodoList

@@ -27,3 +27,17 @@ export const deleteCategory = async (id: number): Promise<void> => {
   });
   if (!res.ok) await throwFromResponse(res, "Failed to delete category");
 };
+
+export const updateCategory = async (
+  id: number,
+  data: CreateCategoryRequest,
+): Promise<Category> => {
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) await throwFromResponse(res, "Failed to update category");
+  return res.json();
+};

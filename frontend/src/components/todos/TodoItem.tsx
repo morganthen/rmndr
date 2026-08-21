@@ -19,23 +19,23 @@ function TodoItem({
   return (
     <li
       key={todo.id}
-      className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm"
+      className="flex items-center gap-3 rounded-lg border border-clay/40 bg-bone px-4 py-3 shadow-sm"
     >
       <input
         type="checkbox"
         checked={todo.isDone}
         onChange={() => onToggleDone(todo.id, !todo.isDone)}
-        className="h-4 w-4 cursor-pointer accent-blue-600"
+        className="h-4 w-4 cursor-pointer accent-sage"
       ></input>
       <h3
         className={`flex-1 text-sm font-medium ${
-          todo.isDone ? "text-gray-400 line-through" : "text-gray-800"
+          todo.isDone ? "text-clay line-through" : "text-ink"
         }`}
       >
         {todo.title}
       </h3>
       {todo.category && (
-        <p className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+        <p className="rounded-full bg-tan px-2 py-0.5 text-xs font-medium text-ink">
           {todo.category}
         </p>
       )}
@@ -45,7 +45,7 @@ function TodoItem({
         onClick={() =>
           toggleArchived ? onDeleteTodo(todo.id) : onArchive(todo.id)
         }
-        className="rounded-md px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50"
+        className="rounded-md px-2 py-1 text-xs font-medium text-red-700 transition hover:bg-tan"
       >
         {toggleArchived ? (
           <HiOutlineTrash className="h-4 w-4" />
