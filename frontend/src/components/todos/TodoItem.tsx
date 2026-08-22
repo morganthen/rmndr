@@ -92,10 +92,11 @@ function TodoItem({
         </p>
       )}
       <button
-        className="rounded-md px-1 py-1 text-clay transition hover:bg-tan hover:text-ink group-hover:opacity-100"
+        className="rounded-md px-1 py-1 text-clay transition hover:bg-tan hover:text-ink"
         onClick={() => {
           setUpdatedTodoTitle(todo.title);
           onToggleEdit(todo.id);
+          cancelledRef.current = false;
         }}
       >
         <MdOutlineEdit className="h-4 w-4" />
