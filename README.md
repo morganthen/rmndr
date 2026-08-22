@@ -39,6 +39,7 @@ Every bug below cost real time. Writing them down so the next project starts one
 - **A controlled component can't take `value={null}`.** React treats null as "not controlled", then flips to controlled on first interaction with a warning. The sentinel for "nothing selected" is `""`, converted to null at the boundary.
 - **A boolean can't answer "which one?"** Inline edit state needs `editingCategoryId: number | null` — the id itself is the flag. A shared boolean flips every row into an input at once.
 - **A ternary branch is a single expression.** Two siblings in the false branch — the name button plus its badges — need a fragment wrapper, or the JSX parser dies.
+- **A hook call is a state instance, not a service.** Calling `useCategories()` in App *and* in a child creates two independent water tanks: the child's `createCategory` closed *its* modal and updated *its* list, while App's tank — the one actually rendering — stayed open and stale. Shared state must live in one place: props at this app's size, Context when drilling hurts. (Two-tank bug found 2026-08-22.)
 
 ### Forms & HTML
 
