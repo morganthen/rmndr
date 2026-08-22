@@ -1,12 +1,11 @@
 import { useState } from "react";
-
 import type { CreateCategoryRequest } from "../../types/category";
 
 interface CategoryFormProps {
-  handleCreateCategory: (data: CreateCategoryRequest) => void;
+  createCategory: (data: CreateCategoryRequest) => void;
 }
 
-function CategoryForm({ handleCreateCategory }: CategoryFormProps) {
+function CategoryForm({ createCategory }: CategoryFormProps) {
   const [newCategory, setNewCategory] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +19,7 @@ function CategoryForm({ handleCreateCategory }: CategoryFormProps) {
     const createdCategory = {
       name: newCategory,
     };
-    handleCreateCategory(createdCategory);
+    createCategory(createdCategory);
   };
 
   return (
@@ -28,6 +27,7 @@ function CategoryForm({ handleCreateCategory }: CategoryFormProps) {
       <form onSubmit={handleSubmit} className="flex gap-2 px-3 pb-3">
         <div className="flex flex-col">
           <input
+            autoFocus
             value={newCategory}
             placeholder="e.g. Personal"
             onChange={(e) => setNewCategory(e.target.value)}

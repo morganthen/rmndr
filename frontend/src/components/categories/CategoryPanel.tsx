@@ -1,19 +1,17 @@
 import { useRef, useState, type ReactNode } from "react";
-import type { Category, CreateCategoryRequest } from "../../types/category";
+import type {
+  CreateCategoryRequest,
+  UseCategoriesResult,
+} from "../../types/category";
 import { MdOutlineDelete, MdOutlineEdit } from "react-icons/md";
 
 interface CategoryPanelProps {
   children: ReactNode;
-  categories: Category[];
-  selectedFilter: string | null;
+  categoriesDomain: UseCategoriesResult;
+  onSelectFilter: (name: string) => void;
+  onUpdateCategory: (id: number, data: CreateCategoryRequest) => Promise<void>;
   toggleArchived: boolean;
-  onDeleteCategory: (id: number) => void;
-  onUpdateCategory: (id: number, data: CreateCategoryRequest) => void;
-  onSelectFilter: (name: string | null) => void;
   onToggleArchived: () => void;
-  onOpenModal: () => void;
-  onToggleEditCategory: (id: number) => void;
-  editCategory: number | null;
 }
 
 const buttonBase = "rounded-md px-2 py-1 text-sm transition";
@@ -22,27 +20,32 @@ const inactiveClass = "text-clay hover:bg-bone";
 
 function CategoryPanel({
   children,
-  categories,
-  selectedFilter,
-  toggleArchived,
-  onDeleteCategory,
-  onUpdateCategory,
-  editCategory,
+  categoriesDomain,
   onSelectFilter,
+  onUpdateCategory,
+  toggleArchived,
   onToggleArchived,
-  onOpenModal,
-  onToggleEditCategory,
 }: CategoryPanelProps) {
   const [updatedCategoryName, setUpdatedCategoryName] = useState<string>("");
 
   const cancelledRef = useRef(false);
+
+  const {
+    categories,
+    selectedFilter,
+    deleteCategory,
+    selectFilter,
+    openModal,
+    toggleEditingCategory,
+    editingCategory,
+  } = categoriesDomain;
 
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex flex-wrap self-start">
         <button
           className={`${buttonBase} ${selectedFilter === null ? activeClass : inactiveClass}`}
-          onClick={() => onSelectFilter(null)}
+          onClick={() => selectFilter(null)}
         >
           All
         </button>
@@ -56,7 +59,7 @@ function CategoryPanel({
               updatedCategoryName.trim() === "" ||
               updatedCategoryName === c.name
             ) {
-              onToggleEditCategory(c.id);
+              toggleEditingCategory(c.id);
               return;
             }
             onUpdateCategory(c.id, { name: updatedCategoryName });
@@ -77,12 +80,12 @@ function CategoryPanel({
                 updatedCategoryName === c.name
               )
                 cancelledRef.current = true;
-              onToggleEditCategory(c.id); // exit edit mode without saving
+              toggleEditingCategory(c.id); // exit edit mode without saving
             }
           };
           return (
             <span key={c.id} className="group relative flex items-center">
-              {editCategory === c.id ? (
+              {editingCategory === c.id ? (
                 <input
                   placeholder={c.name}
                   className={`${buttonBase} placeholder:text-clay outline-none ring-2 ring-sage/40 w-24`}
@@ -106,7 +109,7 @@ function CategoryPanel({
                         aria-label={`Delete category ${c.name}`}
                         className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-clay text-[10px] leading-none text-bone opacity-0 transition hover:bg-red-700 group-hover:opacity-100"
                         onClick={() => {
-                          onDeleteCategory(c.id);
+                          deleteCategory(c.id);
                         }}
                       >
                         <MdOutlineDelete className="h-4 w-4" />
@@ -116,7 +119,7 @@ function CategoryPanel({
                         className="absolute -right-1.5 -bottom-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-clay text-[10px] leading-none text-bone opacity-0 transition hover:bg-green-700 group-hover:opacity-100"
                         onClick={() => {
                           setUpdatedCategoryName(c.name);
-                          onToggleEditCategory(c.id);
+                          toggleEditingCategory(c.id);
                           cancelledRef.current = false;
                         }}
                       >
@@ -140,7 +143,7 @@ function CategoryPanel({
           aria-label="Create category"
           title="Create category"
           className="text-clay hover:text-slate-700"
-          onClick={onOpenModal}
+          onClick={openModal}
         >
           +
         </button>

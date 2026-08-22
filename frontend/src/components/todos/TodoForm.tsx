@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Category } from "../../types/category";
 import type { CreateTodoRequest } from "../../types/todo";
+import type { Category } from "../../types/category";
 
 interface TodoFormProps {
   createTodo: (data: CreateTodoRequest) => void;

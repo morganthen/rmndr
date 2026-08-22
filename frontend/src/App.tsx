@@ -12,10 +12,10 @@ import {
   updateTodo,
 } from "./services/todo-services";
 import CategoryPanel from "./components/categories/CategoryPanel";
-
 import CategoryForm from "./components/categories/CategoryForm";
 import Header from "./components/Header";
 import useCategories from "./hooks/useCategories";
+import type { CreateCategoryRequest } from "./types/category";
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -25,22 +25,18 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const categoriesDomain = useCategories();
+
   const {
     categories,
-    selectedFilter,
     createCategory,
-    deleteCategory,
-    updateCategory,
-    selectFilter,
-    editingCategory,
-    toggleEditingCategory,
+    dialogRef,
     isModalOpen,
-    openModal,
     closeModal,
+    selectedFilter,
     error: categoriesError,
     isLoading: categoriesLoading,
-    dialogRef,
-  } = useCategories();
+  } = categoriesDomain;
 
   const loadTodos = async () => {
     try {
@@ -190,22 +186,17 @@ function App() {
     <div className="mx-auto my-2 flex h-dvh w-full max-w-md flex-col items-center justify-center rounded-2xl border border-clay/50 bg-tan/30 px-2 shadow-sm sm:max-w-xl md:max-w-2xl md:px-4 lg:max-w-3xl">
       <Header>
         <CategoryPanel
-          categories={categories}
-          selectedFilter={selectedFilter}
-          toggleArchived={toggleArchived}
-          onDeleteCategory={deleteCategory}
+          categoriesDomain={categoriesDomain}
           onSelectFilter={(name) => {
-            selectFilter(name);
+            categoriesDomain.selectFilter(name);
             setToggleArchived(false);
           }}
-          onToggleArchived={handleToggleArchived}
-          onOpenModal={openModal}
-          onUpdateCategory={async (id, data) => {
-            const updated = await updateCategory(id, data);
+          onUpdateCategory={async (id: number, data: CreateCategoryRequest) => {
+            const updated = await categoriesDomain.updateCategory(id, data);
             if (updated) loadTodos();
           }}
-          onToggleEditCategory={toggleEditingCategory}
-          editCategory={editingCategory}
+          toggleArchived={toggleArchived}
+          onToggleArchived={handleToggleArchived}
         >
           {isModalOpen && (
             <dialog
@@ -224,7 +215,7 @@ function App() {
               <h2 className="mb-3 pr-6 text-sm font-semibold uppercase tracking-wide text-ink">
                 New category
               </h2>
-              <CategoryForm handleCreateCategory={createCategory} />
+              <CategoryForm createCategory={createCategory} />
             </dialog>
           )}
         </CategoryPanel>
