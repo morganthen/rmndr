@@ -1,4 +1,4 @@
-import type { CreateTodoRequest, Todo } from "../types/todo";
+import type { CreateTodoRequest, Todo, UpdateTodoRequest } from "../types/todo";
 import { throwFromResponse } from "./api-error";
 
 const BASE_URL = "http://localhost:8080/todos";
@@ -53,4 +53,19 @@ export const archiveTodo = async (id: number): Promise<void> => {
     body: JSON.stringify({ isArchived: true }),
   });
   if (!res.ok) await throwFromResponse(res, "Failed archiving todo");
+};
+
+export const updateTodo = async (
+  id: number,
+  data: UpdateTodoRequest,
+): Promise<Todo> => {
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) await throwFromResponse(res, "Failed to update todo");
+  const todo: Todo = await res.json();
+  return todo;
 };

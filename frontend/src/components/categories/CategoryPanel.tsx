@@ -113,7 +113,7 @@ function CategoryPanel({
                       </button>
                       <button
                         aria-label={`Edit category ${c.name}`}
-                        className="absolute -right-1.5 -bottom-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-clay text-[10px] leading-none text-bone opacity-0 transition hover:bg-red-700 group-hover:opacity-100"
+                        className="absolute -right-1.5 -bottom-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-clay text-[10px] leading-none text-bone opacity-0 transition hover:bg-green-700 group-hover:opacity-100"
                         onClick={() => {
                           setUpdatedCategoryName(c.name);
                           onToggleEditCategory(c.id);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { CreateTodoRequest, Todo } from "./types/todo";
+import type { CreateTodoRequest, Todo, UpdateTodoRequest } from "./types/todo";
 import TodoList from "./components/todos/TodoList";
 import TodoForm from "./components/todos/TodoForm";
 import {
@@ -9,6 +9,7 @@ import {
   fetchArchivedTodos,
   fetchTodos,
   toggleDone,
+  updateTodo,
 } from "./services/todo-services";
 import CategoryPanel from "./components/categories/CategoryPanel";
 import type { Category, CreateCategoryRequest } from "./types/category";
@@ -24,6 +25,7 @@ import Header from "./components/Header";
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [archivedTodos, setArchivedTodos] = useState<Todo[]>([]);
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [toggleArchived, setToggleArchived] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -108,6 +110,9 @@ function App() {
 
   const handleToggleEditCategory = (id: number) => {
     setToggleEditCategory((prev) => (prev === id ? null : id));
+  };
+  const handleToggleEditTodo = (id: number) => {
+    setEditingTodoId((prev) => (prev === id ? null : id));
   };
 
   const handleCreateTodo = async (data: CreateTodoRequest) => {
@@ -237,6 +242,25 @@ function App() {
     }
   };
 
+  const handleUpdateTodo = async (id: number, data: UpdateTodoRequest) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const todo = await updateTodo(id, data);
+      setEditingTodoId(null);
+      setTodos((prev) => prev.map((t) => (t.id === id ? todo : t)));
+      setArchivedTodos((prev) => prev.map((t) => (t.id === id ? todo : t)));
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong when updating todo",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleGetCategories = async () => {
       try {
@@ -314,6 +338,9 @@ function App() {
             archivedTodos={archivedTodos}
             onDeleteTodo={handleDeleteTodo}
             toggleArchived={toggleArchived}
+            onUpdateTodo={handleUpdateTodo}
+            onToggleEdit={handleToggleEditTodo}
+            editingTodoId={editingTodoId}
           />
         )}
     </div>

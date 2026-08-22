@@ -1,4 +1,4 @@
-import type { Todo } from "../../types/todo";
+import type { Todo, UpdateTodoRequest } from "../../types/todo";
 import TodoItem from "./TodoItem";
 
 interface TodoListProps {
@@ -8,6 +8,9 @@ interface TodoListProps {
   archivedTodos: Todo[];
   onDeleteTodo: (id: number) => void;
   toggleArchived: boolean;
+  onUpdateTodo: (id: number, data: UpdateTodoRequest) => void;
+  onToggleEdit: (id: number) => void;
+  editingTodoId: number | null;
 }
 
 function TodoList({
@@ -17,6 +20,9 @@ function TodoList({
   archivedTodos,
   onDeleteTodo,
   toggleArchived,
+  onUpdateTodo,
+  onToggleEdit,
+  editingTodoId,
 }: TodoListProps) {
   const todosBasedOnArchive = toggleArchived ? archivedTodos : todos;
 
@@ -31,6 +37,9 @@ function TodoList({
             onArchive={onArchive}
             toggleArchived={toggleArchived}
             onDeleteTodo={onDeleteTodo}
+            onUpdateTodo={onUpdateTodo}
+            onToggleEdit={onToggleEdit}
+            editingTodoId={editingTodoId}
           />
         ))}
       </ul>
