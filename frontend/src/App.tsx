@@ -1,30 +1,14 @@
-import { useEffect, useState } from "react";
-import type { CreateTodoRequest, Todo, UpdateTodoRequest } from "./types/todo";
 import TodoList from "./components/todos/TodoList";
 import TodoForm from "./components/todos/TodoForm";
-import {
-  archiveTodo,
-  createTodo,
-  deleteTodo,
-  fetchArchivedTodos,
-  fetchTodos,
-  toggleDone,
-  updateTodo,
-} from "./services/todo-services";
 import CategoryPanel from "./components/categories/CategoryPanel";
 import CategoryForm from "./components/categories/CategoryForm";
 import Header from "./components/Header";
 import useCategories from "./hooks/useCategories";
 import type { CreateCategoryRequest } from "./types/category";
+import useTodos from "./hooks/useTodos";
 
 function App() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [archivedTodos, setArchivedTodos] = useState<Todo[]>([]);
-  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
-  const [toggleArchived, setToggleArchived] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const todosDomain = useTodos();
   const categoriesDomain = useCategories();
 
   const {
@@ -38,143 +22,21 @@ function App() {
     isLoading: categoriesLoading,
   } = categoriesDomain;
 
-  const loadTodos = async () => {
-    try {
-      const result = await fetchTodos();
-      setTodos(result);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong fetching todos",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadTodos();
-  }, []);
-
-  useEffect(() => {
-    const loadArchivedTodos = async () => {
-      try {
-        const result = await fetchArchivedTodos();
-        setArchivedTodos(result);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong fetching archived todos",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadArchivedTodos();
-  }, [toggleArchived]);
+  const {
+    todos,
+    archivedTodos,
+    loadTodos,
+    showArchive,
+    isLoading: todosLoading,
+    error: todosError,
+    createTodo,
+    toggleArchivedView,
+    closeArchiveView,
+  } = todosDomain;
 
   const handleModalCancel = (e: React.SyntheticEvent) => {
     e.preventDefault();
     closeModal();
-  };
-
-  const handleToggleDone = async (id: number, isDone: boolean) => {
-    try {
-      setError(null);
-      setIsLoading(true);
-      const updated = await toggleDone(id, isDone);
-      setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
-      setArchivedTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong marking done",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleToggleEditTodo = (id: number) => {
-    setEditingTodoId((prev) => (prev === id ? null : id));
-  };
-
-  const handleCreateTodo = async (data: CreateTodoRequest) => {
-    try {
-      setError(null);
-      setIsLoading(true);
-      const todo = await createTodo(data);
-      setTodos((prev) => [...prev, todo]);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong when creating todo",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteTodo = async (id: number) => {
-    try {
-      setError(null);
-      setIsLoading(true);
-      await deleteTodo(id);
-      setArchivedTodos((prev) => prev.filter((t) => t.id !== id));
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong when deleting todo",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleArchiveTodo = async (id: number) => {
-    try {
-      setError(null);
-      setIsLoading(true);
-      await archiveTodo(id);
-      setTodos((prev) => prev.filter((t) => t.id !== id));
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong when archiving todo",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleToggleArchived = () => {
-    setError(null);
-    setToggleArchived((prev) => !prev);
-  };
-
-  const handleUpdateTodo = async (id: number, data: UpdateTodoRequest) => {
-    try {
-      setError(null);
-      setIsLoading(true);
-      const todo = await updateTodo(id, data);
-      setEditingTodoId(null);
-      setTodos((prev) => prev.map((t) => (t.id === id ? todo : t)));
-      setArchivedTodos((prev) => prev.map((t) => (t.id === id ? todo : t)));
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong when updating todo",
-      );
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const visibleTodos =
@@ -189,14 +51,14 @@ function App() {
           categoriesDomain={categoriesDomain}
           onSelectFilter={(name) => {
             categoriesDomain.selectFilter(name);
-            setToggleArchived(false);
+            closeArchiveView();
           }}
           onUpdateCategory={async (id: number, data: CreateCategoryRequest) => {
             const updated = await categoriesDomain.updateCategory(id, data);
             if (updated) loadTodos();
           }}
-          toggleArchived={toggleArchived}
-          onToggleArchived={handleToggleArchived}
+          toggleArchived={showArchive}
+          onToggleArchived={toggleArchivedView}
         >
           {isModalOpen && (
             <dialog
@@ -220,27 +82,17 @@ function App() {
           )}
         </CategoryPanel>
       </Header>
-      <TodoForm createTodo={handleCreateTodo} categories={categories} />
-      {isLoading && <p className="text-clay">Loading...</p>}
+      <TodoForm createTodo={createTodo} categories={categories} />
+      {todosLoading && <p className="text-clay">Loading...</p>}
       {categoriesLoading && <p className="text-clay">Loading...</p>}
-      {error && <p className="text-red-700">{error}</p>}
+      {todosError && <p className="text-red-700">{todosError}</p>}
       {categoriesError && <p className="text-red-700">{categoriesError}</p>}
-      {todos.length === 0 && !isLoading && !toggleArchived && (
+      {todos.length === 0 && !todosLoading && !showArchive && (
         <p className="text-clay">No Todos to show yet</p>
       )}
-      {!isLoading &&
-        (toggleArchived ? archivedTodos.length !== 0 : todos.length !== 0) && (
-          <TodoList
-            todos={visibleTodos}
-            onToggleDone={handleToggleDone}
-            onArchive={handleArchiveTodo}
-            archivedTodos={archivedTodos}
-            onDeleteTodo={handleDeleteTodo}
-            toggleArchived={toggleArchived}
-            onUpdateTodo={handleUpdateTodo}
-            onToggleEdit={handleToggleEditTodo}
-            editingTodoId={editingTodoId}
-          />
+      {!todosLoading &&
+        (showArchive ? archivedTodos.length !== 0 : todos.length !== 0) && (
+          <TodoList todos={visibleTodos} todosDomain={todosDomain} />
         )}
     </div>
   );

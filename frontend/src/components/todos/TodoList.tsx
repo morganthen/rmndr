@@ -1,30 +1,23 @@
-import type { Todo, UpdateTodoRequest } from "../../types/todo";
+import type { Todo, UseTodosResult } from "../../types/todo";
 import TodoItem from "./TodoItem";
 
 interface TodoListProps {
   todos: Todo[];
-  onToggleDone: (id: number, isDone: boolean) => void;
-  onArchive: (id: number) => void;
-  archivedTodos: Todo[];
-  onDeleteTodo: (id: number) => void;
-  toggleArchived: boolean;
-  onUpdateTodo: (id: number, data: UpdateTodoRequest) => void;
-  onToggleEdit: (id: number) => void;
-  editingTodoId: number | null;
+  todosDomain: UseTodosResult;
 }
 
-function TodoList({
-  todos,
-  onToggleDone,
-  onArchive,
-  archivedTodos,
-  onDeleteTodo,
-  toggleArchived,
-  onUpdateTodo,
-  onToggleEdit,
-  editingTodoId,
-}: TodoListProps) {
-  const todosBasedOnArchive = toggleArchived ? archivedTodos : todos;
+function TodoList({ todos, todosDomain }: TodoListProps) {
+  const {
+    archivedTodos,
+    showArchive,
+    editingTodoId,
+    toggleDone,
+    toggleEdit,
+    deleteTodo,
+    updateTodo,
+    archiveTodo,
+  } = todosDomain;
+  const todosBasedOnArchive = showArchive ? archivedTodos : todos;
 
   return (
     <div className="w-full">
@@ -33,12 +26,12 @@ function TodoList({
           <TodoItem
             key={todo.id}
             todo={todo}
-            onToggleDone={onToggleDone}
-            onArchive={onArchive}
-            toggleArchived={toggleArchived}
-            onDeleteTodo={onDeleteTodo}
-            onUpdateTodo={onUpdateTodo}
-            onToggleEdit={onToggleEdit}
+            onToggleDone={toggleDone}
+            onArchive={archiveTodo}
+            toggleArchived={showArchive}
+            onDeleteTodo={deleteTodo}
+            onUpdateTodo={updateTodo}
+            onToggleEdit={toggleEdit}
             editingTodoId={editingTodoId}
           />
         ))}

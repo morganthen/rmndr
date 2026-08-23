@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   Category,
   CreateCategoryRequest,
@@ -20,9 +20,8 @@ function useCategories(): UseCategoriesResult {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
-  const getCategories = async () => {
+  const getCategories = useCallback(async () => {
     try {
-      setError(null);
       const res = await getAllCategories();
       setCategories(res);
     } catch (err) {
@@ -30,11 +29,12 @@ function useCategories(): UseCategoriesResult {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch on mount, not synchronous cascading setState
     getCategories();
-  }, []);
+  }, [getCategories]);
 
   const createCategory = async (data: CreateCategoryRequest) => {
     try {
@@ -108,7 +108,6 @@ function useCategories(): UseCategoriesResult {
 
   const selectFilter = (name: string | null) => {
     setError(null);
-    // setToggleArchived(false);
     setSelectedFilter(name);
   };
 
