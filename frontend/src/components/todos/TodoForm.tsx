@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { CreateTodoRequest } from "../../types/todo";
 import type { Category } from "../../types/category";
 
-interface TodoFormProps {
+export interface TodoFormProps {
   createTodo: (data: CreateTodoRequest) => void;
   categories: Category[];
 }
@@ -29,7 +29,11 @@ function TodoForm({ createTodo, categories }: TodoFormProps) {
 
   return (
     <div className="my-4 w-full rounded-lg border border-clay/50 bg-bone/60">
-      <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 p-3">
+      <form
+        aria-label="form"
+        onSubmit={handleSubmit}
+        className="flex flex-wrap gap-2 p-3"
+      >
         <input
           placeholder="Create a new task..."
           onChange={(e) => setTodo(e.target.value)}
