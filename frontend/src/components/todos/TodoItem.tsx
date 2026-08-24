@@ -3,7 +3,7 @@ import type { Todo, UpdateTodoRequest } from "../../types/todo";
 import { HiOutlineArchive, HiOutlineTrash } from "react-icons/hi";
 import { useRef, useState } from "react";
 
-interface TodoItemProps {
+export interface TodoItemProps {
   todo: Todo;
   onToggleDone: (id: number, isDone: boolean) => void;
   onArchive: (id: number) => void;
@@ -76,6 +76,7 @@ function TodoItem({
         </h3>
       ) : (
         <input
+          role="textbox"
           className="flex-1"
           placeholder={todo.title}
           value={updatedTodoTitle}
@@ -92,6 +93,7 @@ function TodoItem({
         </p>
       )}
       <button
+        aria-label="Edit todo"
         className="rounded-md px-1 py-1 text-clay transition hover:bg-tan hover:text-ink"
         onClick={() => {
           setUpdatedTodoTitle(todo.title);
