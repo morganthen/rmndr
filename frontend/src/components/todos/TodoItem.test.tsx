@@ -72,7 +72,7 @@ describe("Todo Item", () => {
     const user = userEvent.setup();
     const props = renderTodo({ toggleArchived: true });
     await user.click(screen.getByRole("button", { name: /delete todo/i }));
-    expect(props.onDeleteTodo).toHaveBeenCalled(1);
+    expect(props.onDeleteTodo).toHaveBeenCalledWith(1);
   });
 
   it("Applies strikethrough when the todo is done", () => {

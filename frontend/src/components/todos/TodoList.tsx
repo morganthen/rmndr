@@ -1,7 +1,7 @@
 import type { Todo, UseTodosResult } from "../../types/todo";
 import TodoItem from "./TodoItem";
 
-interface TodoListProps {
+export interface TodoListProps {
   todos: Todo[];
   todosDomain: UseTodosResult;
 }
