@@ -21,6 +21,7 @@ A todo app with categories: Spring Boot 4 + MySQL backend, React + TypeScript + 
 - Create-category modal built on the native `<dialog>` element (showModal, backdrop, free focus trap)
 - Earthy palette (sage/bone/tan/clay/ink) as Tailwind v4 `@theme` tokens
 - Global exception handler returning a consistent `ApiErrorResponse` shape, surfaced in the UI via a shared `throwFromResponse` error-body parser
+- Frontend test suite: Vitest + React Testing Library + userEvent — 34 tests across 5 components (TodoList, TodoItem, TodoForm, CategoryForm, CategoryPanel), each component tested through its own `use*`-domain factory
 
 ## Learnings (development log)
 
@@ -65,8 +66,19 @@ Every bug below cost real time. Writing them down so the next project starts one
 - **Keep the dependency graph acyclic.** TodoService already injects CategoryService, so CategoryService injecting TodoService back would be a cycle — the guard reaches for `TodoRepository` directly instead.
 - **Surface the server's message.** `throw new Error("Failed to delete category")` discards the backend's informative 409 ("Category is in use by N todos"). Parse the error body and throw its message.
 
+### Testing (Vitest + React Testing Library)
+
+- **`get*` asserts existence, `query*` asserts absence.** `getByRole` throws when nothing matches, so `getByRole(...).not.toBeInTheDocument()` never runs — the throw fires first. Absence assertions must use `queryBy*`, which returns `null`.
+- **A regex `name` can match sibling buttons.** `/work/i` matched the filter button *and* the "Delete category Work"/"Edit category Work" badges, so `getByRole` threw "multiple elements". Use an exact-string `name: "Work"` when the accessible name contains the same text as its neighbours.
+- **Test where the responsibility lives.** "Can't delete a category attached to a todo" is a *server* rule (`CategoryService.deleteById` → `findByCategoryId`). The component only fires `deleteCategory(id)`; mocking todos into the component test would lie about its contract. Assert the rule at the service, the callback at the component.
+- **Archived rows are the same row.** An archived todo is `isArchived=true` on the same row, and `findByCategoryId` has no archived filter — one query already blocks deletion for archived *and* active todos. The schema told us we needed one test, not two.
+- **A controlled prop can't be flipped by a mocked click.** `editingCategory` comes from the domain prop, so clicking edit (a `vi.fn()` mock) can't change it — the input never renders. Drive the controlled state via the fixture (`editingCategory: 2`); the *internal* `updatedCategoryName` stays `""`, so the category name shows as the placeholder, not the value.
+- **A render helper must actually render.** The factory built props but forgot `render(<Component .../>)`, so `screen.getBy*` found nothing. Build props, render, and return props for assertions.
+- **The native `<dialog>` is untestable in jsdom.** `showModal()`/`close()` aren't implemented — stub them in tests (`HTMLDialogElement.prototype.showModal = vi.fn()`). This is why the modal deserves its own component (take `children`, own its ref) rather than living inline in App.
+
 ## Open items
 
 - **No limit on the number of categories** — users can create unbounded categories; no cap or guidance exists.
 - **No duplicate-name validation** — creating a category with an existing name (or renaming one into a collision) is accepted. The fix lives in `CategoryService` (both `createCategory` and `updateById`), returning 409 on collision.
-- Tests: RTL + Mockito/JUnit + RestAssured
+- **Modal lives inline in `App`** — extract it into its own component (`open`/`onClose`/`children`, owns its `<dialog>` ref + `showModal`/`close` effect) so it's testable and reusable; drop `dialogRef` from `useCategories`.
+- Tests: frontend done (34 RTL). Backend Mockito/JUnit + RestAssured still open.
