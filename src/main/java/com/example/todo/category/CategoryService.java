@@ -10,7 +10,6 @@ import com.example.todo.category.dtos.CreateCategoryRequest;
 import com.example.todo.category.dtos.UpdateCategoryRequest;
 import com.example.todo.category.entities.Category;
 import com.example.todo.common.exceptions.ConflictException;
-import com.example.todo.common.exceptions.NotFoundException;
 import com.example.todo.entities.Todo;
 
 @Service

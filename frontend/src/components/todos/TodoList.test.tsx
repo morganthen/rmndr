@@ -68,4 +68,41 @@ describe("Todo List", () => {
     expect(screen.getByText("Old thing")).toBeInTheDocument();
     expect(screen.queryByText("Active thing")).not.toBeInTheDocument();
   });
+  it("renders normal view when showArchive is false", () => {
+    renderTodoList({
+      todos: [makeTodo({ title: "Active thing" })],
+      todosDomain: makeTodosDomain({
+        showArchive: false,
+        archivedTodos: [makeTodo({ title: "Old thing" })],
+      }),
+    });
+    expect(screen.queryByText("Old thing")).not.toBeInTheDocument();
+    expect(screen.getByText("Active thing")).toBeInTheDocument();
+  });
+
+  it("Renders nothing when no todos are present", () => {
+    renderTodoList({
+      todos: [],
+    });
+    expect(screen.queryByText("Buy milk")).not.toBeInTheDocument();
+  });
+
+  it("Render one item per todo", () => {
+    renderTodoList({
+      todos: [
+        makeTodo(),
+        makeTodo({
+          id: 2,
+          title: "Make music",
+        }),
+        makeTodo({
+          id: 3,
+          title: "Refactor code",
+        }),
+      ],
+    });
+    expect(screen.getByText("Buy milk")).toBeInTheDocument();
+    expect(screen.getByText("Make music")).toBeInTheDocument();
+    expect(screen.getByText("Refactor code")).toBeInTheDocument();
+  });
 });

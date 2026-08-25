@@ -5,7 +5,7 @@ import type {
 } from "../../types/category";
 import { MdOutlineDelete, MdOutlineEdit } from "react-icons/md";
 
-interface CategoryPanelProps {
+export interface CategoryPanelProps {
   children: ReactNode;
   categoriesDomain: UseCategoriesResult;
   onSelectFilter: (name: string) => void;
