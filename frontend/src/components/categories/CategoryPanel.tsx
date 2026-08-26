@@ -42,7 +42,7 @@ function CategoryPanel({
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex flex-wrap self-start">
+      <div className="flex flex-wrap gap-1 self-start md:flex-col md:items-start">
         <button
           className={`${buttonBase} ${selectedFilter === null ? activeClass : inactiveClass}`}
           onClick={() => selectFilter(null)}
