@@ -1,16 +1,20 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import Modal, { type ModalProps } from "./Modal";
 import userEvent from "@testing-library/user-event";
 
-// - stub the dialog: HTMLDialogElement.prototype.showModal = vi.fn(); HTMLDialogElement.prototype.close = vi.fn();
-// - renders children and heading when onModalOpen is true
-// - ESC (fires cancel) → calls onClose (with preventDefault, so it goes through your handleModalCancel)
-// - clicking the Close button → calls onClose
-
-beforeAll(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn();
-  HTMLDialogElement.prototype.close = vi.fn();
+// Make the stubs behave like the real browser: showModal opens, close closes.
+// This gives the <dialog> an `open` attribute so it's visible to getByRole.
+beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = vi.fn(function (
+    this: HTMLDialogElement,
+  ) {
+    this.open = true;
+  });
+  HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+    this.open = false;
+  });
+  vi.clearAllMocks(); // reset call counts so assertions don't leak across tests
 });
 
 function renderModal(overrides: Partial<ModalProps> = {}): ModalProps {
