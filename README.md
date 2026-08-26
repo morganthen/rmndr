@@ -1,5 +1,7 @@
 # RMNDR — Full-Stack Todo App
 
+![CI](https://github.com/morganthen/rmndr/actions/workflows/ci.yml/badge.svg)
+
 A todo app with categories: Spring Boot 4 + MySQL backend, React + TypeScript + Tailwind v4 frontend. Create todos with categories, toggle done, filter by category tabs, and manage categories (create + guarded delete).
 
 ## Stack
@@ -21,7 +23,9 @@ A todo app with categories: Spring Boot 4 + MySQL backend, React + TypeScript + 
 - Create-category modal built on the native `<dialog>` element (showModal, backdrop, free focus trap)
 - Earthy palette (sage/bone/tan/clay/ink) as Tailwind v4 `@theme` tokens
 - Global exception handler returning a consistent `ApiErrorResponse` shape, surfaced in the UI via a shared `throwFromResponse` error-body parser
-- Frontend test suite: Vitest + React Testing Library + userEvent — 34 tests across 5 components (TodoList, TodoItem, TodoForm, CategoryForm, CategoryPanel), each component tested through its own `use*`-domain factory
+- Frontend test suite: Vitest + React Testing Library + userEvent — 39 tests across 6 components (TodoList, TodoItem, TodoForm, CategoryForm, CategoryPanel, Modal), each component tested through its own `use*`-domain or props factory
+- Backend test setup: Mockito unit tests (CategoryService) + H2 in-memory DB via a test `application.properties` and per-test `cleanup.sql`
+- CI: GitHub Actions workflow runs backend `mvnw test` and frontend lint + build + `vitest run` on every push/PR
 
 ## Learnings (development log)
 
@@ -75,6 +79,21 @@ Every bug below cost real time. Writing them down so the next project starts one
 - **A controlled prop can't be flipped by a mocked click.** `editingCategory` comes from the domain prop, so clicking edit (a `vi.fn()` mock) can't change it — the input never renders. Drive the controlled state via the fixture (`editingCategory: 2`); the *internal* `updatedCategoryName` stays `""`, so the category name shows as the placeholder, not the value.
 - **A render helper must actually render.** The factory built props but forgot `render(<Component .../>)`, so `screen.getBy*` found nothing. Build props, render, and return props for assertions.
 - **The native `<dialog>` is untestable in jsdom.** `showModal()`/`close()` aren't implemented — stub them in tests (`HTMLDialogElement.prototype.showModal = vi.fn()`). This is why the modal deserves its own component (take `children`, own its ref) rather than living inline in App.
+- **`getByRole` filters hidden elements; `getByText` doesn't.** A closed `<dialog>` (no `open` attr) is `display:none`, so `getByRole("dialog")` and role queries inside it "can't find" the element while `getByText` finds it fine. A faithful `<dialog>` stub must set `open` (`this.open = true`), or role-based queries can't see anything inside.
+- **A utility that sets `display` on a natively-hidden element defeats its hidden state.** The modal's `flex` class overrode the UA's `dialog:not([open]){display:none}` once the dialog was always mounted, so it stayed visible when closed. Author styles beat UA styles regardless of specificity. Fix: gate the display utility on open — `open:flex` instead of `flex`.
+- **Mocks leak call state across tests.** A `vi.fn()` stubbed in `beforeAll` accumulates calls from every test, so `.not.toHaveBeenCalled()` fails from an earlier test's side effects. Reset with `vi.clearAllMocks()` in `beforeEach`.
+- **`fireEvent.cancel` doesn't exist.** Testing-library only ships a fixed set of events; `cancel` isn't one of them. Use the generic form — `fireEvent(dialog, new Event("cancel", { cancelable: true }))` — or `dialog.dispatchEvent(...)`. React attaches `onCancel` directly to the element (non-delegated), so dispatching on the node works.
+
+### Backend testing (Mockito + H2)
+
+- **`@Mock` for collaborators, `@Spy @InjectMocks` for the unit under test.** `@ExtendWith(MockitoExtension.class)` + `@Mock CategoryRepository`/`@Mock TodoRepository` create fakes; `@Spy @InjectMocks CategoryService` is the real service with those fakes injected. Arrange with `when(...).thenReturn(...)`, act on the service, assert with `assertThrows`/`verify`/`never()`.
+- **Unit-test the guard where it lives.** `CategoryService.deleteById` throws `ConflictException` when `todoRepository.findByCategoryId` returns todos — one mock returns a list, `assertThrows`, and `verify(repo, never()).deleteById(...)`. No DB, no server, fast.
+- **Test resources override main at test time.** `src/test/resources/application.properties` swaps the MySQL datasource for `jdbc:h2:mem:testdb` so `@SpringBootTest` integration tests boot against an in-memory DB. `cleanup.sql` wipes tables before each test — delete `todos` before `categories` (FK order).
+
+### CI (GitHub Actions)
+
+- **A workflow is a YAML file in `.github/workflows/`, not code you run locally.** `on:` defines the trigger (push to `main`, pull requests); each `job` runs on a fresh VM; `steps` run commands or `uses:` reusable actions.
+- **`npm test` (`vitest`) is watch mode and hangs CI.** CI needs a single run — use `npx vitest run`. A status badge won't render a real "passing" state until the workflow has run at least once after being pushed.
 
 ## Open items
 
