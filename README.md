@@ -1,6 +1,7 @@
 # RMNDR — Full-Stack Todo App
 
-![CI](https://github.com/morganthen/rmndr/actions/workflows/ci.yml/badge.svg)
+![Backend](https://github.com/morganthen/rmndr/actions/workflows/backend.yml/badge.svg)
+![Frontend](https://github.com/morganthen/rmndr/actions/workflows/frontend.yml/badge.svg)
 
 A todo app with categories: Spring Boot 4 + MySQL backend, React + TypeScript + Tailwind v4 frontend. Create todos with categories, toggle done, filter by category tabs, and manage categories (create + guarded delete).
 
