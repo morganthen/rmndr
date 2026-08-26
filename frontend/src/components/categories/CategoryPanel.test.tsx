@@ -29,7 +29,6 @@ function makeCategoriesDomain(
     closeModal: vi.fn(),
     error: null,
     isLoading: false,
-    dialogRef: { current: null },
     ...overrides,
   };
 }

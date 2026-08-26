@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import useCategories from "./hooks/useCategories";
 import type { CreateCategoryRequest } from "./types/category";
 import useTodos from "./hooks/useTodos";
+import Modal from "./components/ui/Modal";
 
 function App() {
   const todosDomain = useTodos();
@@ -14,7 +15,6 @@ function App() {
   const {
     categories,
     createCategory,
-    dialogRef,
     isModalOpen,
     closeModal,
     selectedFilter,
@@ -33,11 +33,6 @@ function App() {
     toggleArchivedView,
     closeArchiveView,
   } = todosDomain;
-
-  const handleModalCancel = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    closeModal();
-  };
 
   const visibleTodos =
     selectedFilter === null
@@ -60,26 +55,13 @@ function App() {
           toggleArchived={showArchive}
           onToggleArchived={toggleArchivedView}
         >
-          {isModalOpen && (
-            <dialog
-              ref={dialogRef}
-              onCancel={handleModalCancel}
-              onClose={closeModal}
-              className="relative m-auto flex min-h-64 w-full max-w-sm flex-col justify-center rounded-2xl border border-clay/50 bg-bone p-4 shadow-lg backdrop:bg-ink/50 backdrop:backdrop-blur-sm"
-            >
-              <button
-                aria-label="Close"
-                onClick={closeModal}
-                className="absolute right-3 top-3 rounded-full p-1.5 text-clay transition-all  hover:bg-tan hover:text-ink"
-              >
-                x
-              </button>
-              <h2 className="mb-3 pr-6 text-sm font-semibold uppercase tracking-wide text-ink">
-                New category
-              </h2>
-              <CategoryForm createCategory={createCategory} />
-            </dialog>
-          )}
+          <Modal
+            isModalOpen={isModalOpen}
+            onClose={closeModal}
+            heading="New Category"
+          >
+            <CategoryForm createCategory={createCategory} />
+          </Modal>
         </CategoryPanel>
       </Header>
       <TodoForm createTodo={createTodo} categories={categories} />

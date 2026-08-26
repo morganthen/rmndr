@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type {
   Category,
   CreateCategoryRequest,
@@ -18,7 +18,6 @@ function useCategories(): UseCategoriesResult {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const dialogRef = useRef<HTMLDialogElement | null>(null);
 
   const getCategories = useCallback(async () => {
     try {
@@ -111,23 +110,13 @@ function useCategories(): UseCategoriesResult {
     setSelectedFilter(name);
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
   const closeModal = () => {
     setIsModalOpen(false);
   };
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (isModalOpen && !dialog.open) {
-      dialog.showModal();
-    } else if (!isModalOpen && dialog.open) {
-      dialog.close();
-    }
-  }, [isModalOpen]);
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
 
   return {
     categories,
@@ -135,15 +124,14 @@ function useCategories(): UseCategoriesResult {
     createCategory,
     deleteCategory,
     updateCategory,
+    closeModal,
+    openModal,
     selectFilter,
     editingCategory,
     toggleEditingCategory,
     isModalOpen,
-    openModal,
-    closeModal,
     error,
     isLoading,
-    dialogRef,
   };
 }
 

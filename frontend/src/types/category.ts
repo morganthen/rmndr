@@ -1,5 +1,3 @@
-import type { RefObject } from "react";
-
 export interface Category {
   id: number;
   name: string;
@@ -26,5 +24,4 @@ export interface UseCategoriesResult {
   closeModal: () => void;
   error: string | null;
   isLoading: boolean;
-  dialogRef: RefObject<HTMLDialogElement | null>;
 }
